@@ -1,0 +1,23 @@
+uses: docker/build-push-action@v4
+with:
+  push: false
+  tags: IMAGE_NAME:{{github.run_number}}
+
+# Slim the Image
+uses: kitabisa/docker-slim-action@v1
+env:
+  DSLIM_HTTP_PROBE: false
+with:
+  target: IMAGE_NAME:{{github.run_number}}
+  tag: "slim-{{github.run_number}}"
+
+#Docker Hub Login
+  uses: docker/login-action@v2
+  with:
+    username: ${{ secrets.DOCKERHUB_USERNAME }}
+    password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#Push to the registry
+run: | 
+ docker tag IMAGE_NAME:slim-{{github.run_number}} ${{ secrets.DOCKERHUB_USERNAME }}/IMAGE_NAME:slim-{{github.run_number}}
+ docker push ${{ secrets.DOCKERHUB_USERNAME }}/IMAGE_NAME:slim-{{github.run_number}}
